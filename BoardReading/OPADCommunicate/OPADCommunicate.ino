@@ -1064,7 +1064,7 @@ void loop()
   }
 
   if (activate) {
-    if (millis() - t0 > 50) {
+    if (millis() - t0 > 350) {
     AD5930_Set_Start_Freq(10000);
     calibrate_samples_at_freq(10000);
     read_all_at_freq(10000, signal_rms, signal_mag, signal_phase, NUM_ELECTRODES);
