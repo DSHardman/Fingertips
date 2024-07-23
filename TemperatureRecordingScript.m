@@ -1,6 +1,6 @@
-maximumforce = 0.2; % In N: 6 normal, 3 bent, 0.2 human
-savestring = "Human/N1";
-readingtype = "Pneu";
+maximumforce = 2.0; % In N
+savestring = "Temp/test";
+readingtype = "EIT";
 
 % Assume printer has been manually set up and positioned to start at same
 % point Z = 30. Z10 is just before touch occurs
@@ -17,8 +17,9 @@ pause(1);
 
 % location = [3 1]; % Need to multiply by 37.5
 
-printer.writeline('G92 Z10');
+printer.writeline('G92 Z30');
 printer.writeline('M211 S0');
+printer.writeline('M301 P1'); % Stop overshoot during low heating
 
 switch readingtype
     case "EIT"
@@ -49,8 +50,9 @@ forces = [];
 positions = [];
 times = [];
 measurements = [];
+temps = [];
 n = 0;
-step = 0.2; % Move down this many mm each step
+step = 0.5; % Move down this many mm each step
 
 pause(1);
 printer.write("G0 Z10", "string");
@@ -64,8 +66,10 @@ while force < maximumforce
     flush(arduino);
     readline(arduino);
     arduinodata = str2num(readline(arduino));
-    force = arduinodata(end) % print force in console
+    force = arduinodata(end)
     forces = [forces; force];
+    temp = gettemperature(printer);
+    temps = [temps; temp];
     positions = [positions; n*step];
     times = [times; toc];
 
@@ -93,16 +97,25 @@ while force < maximumforce
     n = n + 1;
 end
 
-% Optional: hold in place while still recording
-for i = 1:10
+printer.writeline('M104 S35'); % Set target temp to 40 but do not wait
+fprintf("Heating...\n");
+
+
+% Hold in place for 1 minute
+t0 = toc;
+while toc - t0 < 60
     pause(0.5);
     flush(arduino);
     readline(arduino);
     arduinodata = str2num(readline(arduino));
-    force = arduinodata(end) % print force in console
+
+    force = arduinodata(end);
     forces = [forces; force];
+    temp = gettemperature(printer) % print temperature in console
+    temps = [temps; temp];
     positions = [positions; n*step];
     times = [times; toc];
+    toc - t0
 
     switch readingtype
     case "EIT"
@@ -116,6 +129,36 @@ for i = 1:10
     end
 end
 
+printer.writeline('M104 S0'); % Cooldown
+fprintf("Cooling...\n")
+
+% Hold in place for 3 minutes
+while toc < 180
+    pause(0.5);
+    flush(arduino);
+    readline(arduino);
+    arduinodata = str2num(readline(arduino));
+    force = arduinodata(end);
+    forces = [forces; force];
+    temp = gettemperature(printer) % print temperature in console
+    temps = [temps; temp];
+    positions = [positions; n*step];
+    times = [times; toc];
+    toc
+
+    switch readingtype
+    case "EIT"
+        flush(eitboard);
+        eitdata = str2num(readline(eitboard));
+        measurements = [measurements; eitdata];
+    case "Passive"
+        measurements = NaN;
+    otherwise
+        measurements = [measurements; arduinodata(1:end-1)];
+    end
+end
+
+
 % Return to starting position whilst still measuring
 for i = n:-1:0
     printer.writeline("G0 Z"+string(10-i*step));
@@ -123,8 +166,10 @@ for i = n:-1:0
     flush(arduino);
     readline(arduino);
     arduinodata = str2num(readline(arduino));
-    force = arduinodata(end) % print force in console
+    force = arduinodata(end)
     forces = [forces; force];
+    temp = gettemperature(printer);
+    temps = [temps; temp];
     positions = [positions; i*step];
     times = [times; toc];
 
@@ -144,7 +189,7 @@ printer.writeline("G0 Z30");
 printer.writeline("M81");
 
 % Save data to file
-save("Readings/"+savestring+".mat", "forces", "positions", "times", "measurements");
+save("Readings/"+savestring+".mat", "forces", "positions", "times", "measurements", "temps");
 
 plot(forces)
 subplot(3,1,1);
@@ -159,3 +204,17 @@ title("Measurements");
 set(gcf, 'color', 'w', 'position', [480   108   560   735]);
 
 clear eitboard printer arduino
+
+function temp = gettemperature(printer)
+        flush(printer);
+    printer.writeline('M105');
+    printer.configureTerminator("LF");
+    temp = printer.readline();
+    temp = char(temp);
+    if temp(4) ~= 'T'
+        temp = printer.readline();
+        temp = char(temp);
+    end
+    printer.configureTerminator(13);
+    temp = str2double(temp(6:10));
+end

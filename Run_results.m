@@ -1,0 +1,87 @@
+classdef Run_results
+    %RUN_RESULTS Stores data from a single fingertip test, or returns NaN
+
+    properties
+        forces
+        positions
+        times
+        measurements
+        temps
+    end
+
+    methods
+        function obj = Run_results(resultspath)
+            %RUN_RESULTS constructor: load results from path, or return NaN
+            try
+                load(resultspath, "forces", "positions", "times", "measurements");
+                obj.forces = forces;
+                obj.positions = positions;
+                obj.times = times;
+                obj.measurements = measurements;
+            catch
+                fprintf("Couldn't load results, returning NaN: "+resultspath+"\n");
+                obj.forces = NaN;
+                obj.positions = NaN;
+                obj.times = NaN;
+                obj.measurements = NaN;
+            end
+
+            try
+                obj.temps = temps;
+            catch
+                obj.temps = NaN;
+            end
+        end
+
+        function plotall(obj)
+            %PLOTALL with time
+            subplot(3,1,1);
+            plot(obj.times, obj.positions);
+            xlim([0 obj.times(end)]);
+            title("Positions");
+            subplot(3,1,2);
+            plot(obj.times, obj.forces);
+            xlim([0 obj.times(end)]);
+            title("Forces");
+            subplot(3,1,3);
+            plot(obj.times, obj.measurements);
+            xlim([0 obj.times(end)]);
+            title("Measurements");
+            xlabel("Time (s)");
+            set(gcf, 'color', 'w', 'position', [480 108 560 735]);
+        end
+
+        function mechplot(obj)
+            %MECHPLOT Mechanical response plot
+            plot(obj.positions, obj.forces);
+            xlabel("Z displacement (mm)");
+            ylabel("Force (N)");
+        end
+
+        function measvsforce(obj)
+            %MEASVSFORCE Measurements with applied force
+            plot(obj.forces, obj.measurements);
+            xlabel("Force (N)");
+            ylabel("Measurements");
+        end
+
+        function visualise(obj, ranked)
+            %VISUALISE Plot normalised heatmap
+            subplot(2,1,1);
+            plot(obj.forces);
+            xlim([0 length(obj.forces)]);
+
+            subplot(2,1,2);
+            if nargin == 1
+                ranked = 0;
+            end
+            if ranked
+                [coeff,~,~,~,~,~] = pca(obj.measurements);
+                [~,ranking] = sort(mean(abs(coeff(:,1)), 2), 'descend');
+                heatmap(normalize(obj.measurements(:, ranking), "range", [0 1]).', "colormap", gray); grid off
+            else
+                heatmap(normalize(obj.measurements, "range", [0 1]).', "colormap", gray); grid off
+            end
+        end
+    end
+end
