@@ -1,6 +1,6 @@
-maximumforce = 0.2; % In N: 6 normal, 3 bent, 0.2 human
-savestring = "Human/N1";
-readingtype = "Pneu";
+maximumforce = 0.3; % In N: 6 normal, 3 bent, 0.2 human
+savestring = "Human/test";
+readingtype = "EIT";
 
 % Assume printer has been manually set up and positioned to start at same
 % point Z = 30. Z10 is just before touch occurs

@@ -1,6 +1,6 @@
 maximumforce = 2.0; % In N
-savestring = "Temp/test";
-readingtype = "EIT";
+savestring = "Temp/Z1";
+readingtype = "FSR";
 
 % Assume printer has been manually set up and positioned to start at same
 % point Z = 30. Z10 is just before touch occurs
@@ -17,7 +17,7 @@ pause(1);
 
 % location = [3 1]; % Need to multiply by 37.5
 
-printer.writeline('G92 Z30');
+printer.writeline('G92 Z10');
 printer.writeline('M211 S0');
 printer.writeline('M301 P1'); % Stop overshoot during low heating
 

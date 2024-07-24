@@ -1,5 +1,6 @@
 % init
 maximumforce = 2.0; % In N
+step = 0.2;
 
 % Connect to peripherals
 % eitboard = serialport("COM6", 9600);
@@ -48,6 +49,44 @@ for i = 1:3
     printer.writeline("G0 Z-5");
 
     pause();
+    % start normal forces
+    maximumforce = 6;
+    % Press down until maximum force is reached
+    force = 0; n = 0;
+    while force < maximumforce
+        printer.writeline("G0 Z"+string(-5-n*step));
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+        force = arduinodata(end); % print force in console
+    
+        % 10mm for the others
+        if n > 10/step % Do not descend more than 10mm from starting point
+            break
+        end
+    
+        if force >= maximumforce
+            break
+        end
+        pause(1);
+    
+        n = n + 1;
+    end
+
+    for j = n:-1:0
+        printer.writeline("G0 Z"+string(-5-j*step));
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+        force = arduinodata(end); % print force in console
+    end
+    
+    fprintf("normal forces ended\n");
+    % end normal forces
+    pause();
+
 
     printer.writeline("G0 Z30");
     pause(2);
@@ -57,6 +96,43 @@ for i = 1:3
 
     printer.writeline('G0 X70 Y-120 Z-48');
 
+    pause();
+    % start bent forces
+    maximumforce = 3;
+    % Press down until maximum force is reached
+    force = 0; n = 0;
+    while force < maximumforce
+        printer.writeline("G0 Z"+string(-48-n*step));
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+        force = arduinodata(end); % print force in console
+    
+        % 10mm for the others
+        if n > 10/step % Do not descend more than 10mm from starting point
+            break
+        end
+    
+        if force >= maximumforce
+            break
+        end
+        pause(1);
+    
+        n = n + 1;
+    end
+
+    for j = n:-1:0
+        printer.writeline("G0 Z"+string(-48-j*step));
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+        force = arduinodata(end); % print force in console
+    end
+    
+    fprintf("bent forces ended\n");
+    % end bent forces
     pause();
 
     printer.writeline('G0 Z30');
@@ -69,7 +145,45 @@ for i = 1:3
     pause(3);
     arduino.write("o", "string");
 
-    printer.writeline("G0 X130 Y-85 Z-95");
+    printer.writeline("G0 X130 Y-85 Z-98");
+    pause();
+
+    % start straight forces
+    maximumforce = 3;
+    % Press down until maximum force is reached
+    force = 0; n = 0;
+    while force < maximumforce
+        printer.writeline("G0 Z"+string(-98-n*step));
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+        force = arduinodata(end); % print force in console
+    
+        % 10mm for the others
+        if n > 15/step % Do not descend more than 10mm from starting point
+            break
+        end
+    
+        if force >= maximumforce
+            break
+        end
+        pause(1);
+    
+        n = n + 1;
+    end
+
+    for j = n:-1:0
+        printer.writeline("G0 Z"+string(-98-j*step));
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+        force = arduinodata(end); % print force in console
+    end
+    
+    fprintf("straight forces ended\n");
+    % end straight forces
     pause();
 
     printer.writeline("G0 Z50");
@@ -78,6 +192,51 @@ for i = 1:3
     pause(2);
     arduino.write("o", "string");
     pause(1);
+    
+    printer.writeline("G0 X183 Y-42 Z44");
+    pause();
+    % start temp monitoring
+    maximumforce = 2;
+    force = 0; n = 0;
+    % Press down until maximum force is reached
+    while force < maximumforce
+        printer.writeline("G0 Z"+string(44-n*step));
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+        force = arduinodata(end); % print force in console
+    
+        % 10mm for the others
+        if n > 10/step % Do not descend more than 10mm from starting point
+            break
+        end
+    
+        if force >= maximumforce
+            break
+        end
+        pause(1);
+    
+        n = n + 1;
+    end
+
+    pause(60); % Wait one minute before proceeding
+
+    for j = n:-1:0
+        printer.writeline("G0 Z"+string(44-j*step));
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+        force = arduinodata(end); % print force in console
+    end
+    
+    fprintf("temp ended\n");
+    % end temp monitoring
+
+
+    printer.writeline("G0 Z50");
+
     printer.writeline("G0 X"+string(desiredlocations(i,1))+...
         " Y"+string(desiredlocations(i,2)));
     printer.writeline("G0 Z0");
@@ -89,34 +248,7 @@ for i = 1:3
     pause(1);
     printer.writeline("G0 Z30");
 
-    % Move to normal
-    % Perform normal
-    
-    % Bend & move to bent
-    % Peform bent
-    
-    % Straighten & move to straight
-    % Perform straight
-    
-    % Move to normal & temperature probe
-    % Perform temperature oscillation
-    
-    % Deposit first
-    
-    % Pick up second
-    
-    % Move to normal
-    % Perform normal
-    
-    % Bend & move to bent
-    % Peform bent
-    
-    % Straighten & move to straight
-    % Perform straight
-    
-    % Move to normal & temperature probe
-    % Perform temperature oscillation
-
-    % Release fingertip
 
 end
+
+clear printer arduino
