@@ -1,9 +1,8 @@
-maximumforce = 0.3; % In N: 6 normal, 3 bent, 0.2 human
+maximumforce = 0.3; % In N: 6.0 normal, 3.0 bent, 0.2 or 0.3 human
 savestring = "Human/test";
 readingtype = "EIT";
 
-% Assume printer has been manually set up and positioned to start at same
-% point Z = 30. Z10 is just before touch occurs
+% Printer starts manually positioned just above starting point
 
 % Connect to peripherals
 eitboard = serialport("COM6", 9600);
@@ -14,12 +13,19 @@ printer.configureTerminator(13);
 pause(1);
 arduino = serialport("COM10", 9600);
 pause(1);
-
-% location = [3 1]; % Need to multiply by 37.5
-
 printer.writeline('G92 Z10');
 printer.writeline('M211 S0');
 
+% Variables to save
+force = 0;
+forces = [];
+positions = [];
+times = [];
+measurements = [];
+n = 0;
+step = 0.2; % Move down this many mm each step
+
+% Configure boards to fingertip type
 switch readingtype
     case "EIT"
         pause(2);
@@ -42,21 +48,9 @@ switch readingtype
     otherwise
         error("ERROR: Unrecognised Reading Type");
 end
-pause(2);
+pause(3);
 
-force = 0;
-forces = [];
-positions = [];
-times = [];
-measurements = [];
-n = 0;
-step = 0.2; % Move down this many mm each step
-
-pause(1);
-printer.write("G0 Z10", "string");
-pause(1);
 tic
-
 % Press down until maximum force is reached
 while force < maximumforce
     printer.writeline("G0 Z"+string(10-n*step));
@@ -80,8 +74,8 @@ while force < maximumforce
         measurements = [measurements; arduinodata(1:end-1)];
     end
 
-    % 10mm for the others
-    if n > 15/step % Do not descend more than 10mm from starting point
+    % Do not descend more than 10mm from starting point
+    if n > 10/step  % (Set to 15 for straight tests)
         break
     end
 
@@ -93,28 +87,28 @@ while force < maximumforce
     n = n + 1;
 end
 
-% Optional: hold in place while still recording
-for i = 1:10
-    pause(0.5);
-    flush(arduino);
-    readline(arduino);
-    arduinodata = str2num(readline(arduino));
-    force = arduinodata(end) % print force in console
-    forces = [forces; force];
-    positions = [positions; n*step];
-    times = [times; toc];
-
-    switch readingtype
-    case "EIT"
-        flush(eitboard);
-        eitdata = str2num(readline(eitboard));
-        measurements = [measurements; eitdata];
-    case "Passive"
-        measurements = NaN;
-    otherwise
-        measurements = [measurements; arduinodata(1:end-1)];
-    end
-end
+% % Optional: hold still while still recording (for human tests)
+% for i = 1:10
+%     pause(0.5);
+%     flush(arduino);
+%     readline(arduino);
+%     arduinodata = str2num(readline(arduino));
+%     force = arduinodata(end) % print force in console
+%     forces = [forces; force];
+%     positions = [positions; n*step];
+%     times = [times; toc];
+% 
+%     switch readingtype
+%     case "EIT"
+%         flush(eitboard);
+%         eitdata = str2num(readline(eitboard));
+%         measurements = [measurements; eitdata];
+%     case "Passive"
+%         measurements = NaN;
+%     otherwise
+%         measurements = [measurements; arduinodata(1:end-1)];
+%     end
+% end
 
 % Return to starting position whilst still measuring
 for i = n:-1:0
@@ -128,6 +122,7 @@ for i = n:-1:0
     positions = [positions; i*step];
     times = [times; toc];
 
+    % Update measurements
     switch readingtype
     case "EIT"
         eitdata = str2num(readline(eitboard));
@@ -140,12 +135,14 @@ for i = n:-1:0
     pause(1);
 end
 
+% Move up and disconnect motors
 printer.writeline("G0 Z30");
 printer.writeline("M81");
 
 % Save data to file
 save("Readings/"+savestring+".mat", "forces", "positions", "times", "measurements");
 
+% Plot results
 plot(forces)
 subplot(3,1,1);
 plot(positions);
@@ -158,4 +155,5 @@ plot(measurements);
 title("Measurements");
 set(gcf, 'color', 'w', 'position', [480   108   560   735]);
 
+% Disconnect peripherals
 clear eitboard printer arduino

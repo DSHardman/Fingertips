@@ -11,7 +11,7 @@ classdef Fingertip
 
     methods
         function obj = Fingertip(code)
-            %FINGERTIP Constructor from code
+            %FINGERTIP Constructor from identifying code
             obj.normal = Run_results("Readings/Normal/"+code+".mat");
             obj.bent = Run_results("Readings/Bent/"+code+".mat");
             obj.straight = Run_results("Readings/Straight/"+code+".mat");
@@ -20,6 +20,7 @@ classdef Fingertip
         end
 
         function mechplots(obj)
+            % Plot all 3 of the fingertip's mechanical plots
             obj.normal.mechplot();
             hold on
             obj.bent.mechplot();

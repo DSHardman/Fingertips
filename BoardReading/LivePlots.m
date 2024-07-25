@@ -1,4 +1,4 @@
-% Assumes that ranking variable already exists from a previous script...
+% For debugging: see EIT board data in real time
 
 clear device
 device = serialport("COM6",9600);
@@ -20,6 +20,7 @@ for i = 1:n
         data = str2num(data);
         plotthis = [plotthis; data];
         clf
+        % Assumes that ranking variable already exists from a previous script...
         % plot(plotthis(:, ranking(1:200)), 'linewidth', 2);
         plot(plotthis, 'linewidth', 2);
 
