@@ -1,6 +1,6 @@
-maximumforce = 0.3; % In N: 6.0 normal, 3.0 bent, 0.2 or 0.3 human
-savestring = "Human/test";
-readingtype = "EIT";
+maximumforce = 0.2; % In N: 6.0 normal, 3.0 bent/straight, 0.2 human
+savestring = "Human/B1";
+readingtype = "Ben";
 
 % Printer starts manually positioned just above starting point
 
@@ -41,6 +41,10 @@ switch readingtype
         eitboard.write("n", "string");
         pause(2);
         arduino.write("f", "string");
+    case "Ben"
+        eitboard.write("n", "string");
+        pause(2);
+        arduino.write("n", "string");
     case "Passive"
         eitboard.write("n", "string");
         pause(2);
@@ -75,7 +79,7 @@ while force < maximumforce
     end
 
     % Do not descend more than 10mm from starting point
-    if n > 10/step  % (Set to 15 for straight tests)
+    if n > 15/step  % (Set to 15 for straight tests)
         break
     end
 
@@ -87,28 +91,28 @@ while force < maximumforce
     n = n + 1;
 end
 
-% % Optional: hold still while still recording (for human tests)
-% for i = 1:10
-%     pause(0.5);
-%     flush(arduino);
-%     readline(arduino);
-%     arduinodata = str2num(readline(arduino));
-%     force = arduinodata(end) % print force in console
-%     forces = [forces; force];
-%     positions = [positions; n*step];
-%     times = [times; toc];
-% 
-%     switch readingtype
-%     case "EIT"
-%         flush(eitboard);
-%         eitdata = str2num(readline(eitboard));
-%         measurements = [measurements; eitdata];
-%     case "Passive"
-%         measurements = NaN;
-%     otherwise
-%         measurements = [measurements; arduinodata(1:end-1)];
-%     end
-% end
+% Optional: hold still while still recording (for human tests)
+for i = 1:10
+    pause(0.5);
+    flush(arduino);
+    readline(arduino);
+    arduinodata = str2num(readline(arduino));
+    force = arduinodata(end) % print force in console
+    forces = [forces; force];
+    positions = [positions; n*step];
+    times = [times; toc];
+
+    switch readingtype
+    case "EIT"
+        flush(eitboard);
+        eitdata = str2num(readline(eitboard));
+        measurements = [measurements; eitdata];
+    case "Passive"
+        measurements = NaN;
+    otherwise
+        measurements = [measurements; arduinodata(1:end-1)];
+    end
+end
 
 % Return to starting position whilst still measuring
 for i = n:-1:0

@@ -101,6 +101,18 @@ void loop() {
         digitalWrite(A2, HIGH);
         readmode = 'f';
         break;
+      case 'n': // Benhui mode;
+        pinMode(A0, INPUT);
+        pinMode(A1, OUTPUT);
+        pinMode(A2, OUTPUT);
+        pinMode(A3, INPUT);
+        pinMode(A4, INPUT);
+        pinMode(A5, INPUT);
+
+        digitalWrite(A0, HIGH);
+        digitalWrite(A1, HIGH);
+        readmode = 'n';
+        break;
       case 'p': // pneumatic mode;
         pinMode(A0, OUTPUT);
         pinMode(A1, INPUT);
@@ -141,6 +153,12 @@ void loop() {
     delay(10);
   } else if (readmode=='f') { // Return FSR measurements before force data
     Serial.print(analogRead(A1));
+    Serial.print(", ");
+    Serial.print(analogRead(A3));
+    Serial.print(", ");
+    delay(10);
+  } else if (readmode=='n') { // Return Benhui measurements before force data
+    Serial.print(analogRead(A0));
     Serial.print(", ");
     Serial.print(analogRead(A3));
     Serial.print(", ");

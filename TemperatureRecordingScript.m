@@ -1,6 +1,6 @@
 maximumforce = 2.0; % In N
-savestring = "Temp/G1";
-readingtype = "EIT";
+savestring = "Temp/B1";
+readingtype = "Ben";
 
 % Printer starts manually positioned just above temperature probe
 % Creality fan is pointed at probe throughout for sufficient cooling
@@ -44,6 +44,10 @@ switch readingtype
         eitboard.write("n", "string");
         pause(2);
         arduino.write("f", "string");
+    case "Ben"
+        eitboard.write("n", "string");
+        pause(2);
+        arduino.write("n", "string");
     case "Passive"
         eitboard.write("n", "string");
         pause(2);
