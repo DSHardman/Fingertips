@@ -1,6 +1,6 @@
-maximumforce = 0.2; % In N: 6.0 normal, 3.0 bent/straight, 0.2 human
-savestring = "Human/B1";
-readingtype = "Ben";
+maximumforce = 3.0; % In N: 6.0 normal, 3.0 bent/straight, 0.2 human
+savestring = "Bent/F2";
+readingtype = "EIT";
 
 % Printer starts manually positioned just above starting point
 
@@ -79,7 +79,7 @@ while force < maximumforce
     end
 
     % Do not descend more than 10mm from starting point
-    if n > 15/step  % (Set to 15 for straight tests)
+    if n > 10/step  % (Set to 15 for straight tests)
         break
     end
 
@@ -92,6 +92,7 @@ while force < maximumforce
 end
 
 % Optional: hold still while still recording (for human tests)
+% And accidentally left on for bent repeats
 for i = 1:10
     pause(0.5);
     flush(arduino);

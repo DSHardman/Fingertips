@@ -28,7 +28,10 @@ classdef Run_results
 
             % Temperatures treated separately for passive fingertips
             try
+                warning("off");
+                load(resultspath, "temps");
                 obj.temps = temps;
+                warning("on");
             catch
                 obj.temps = NaN;
             end
@@ -52,6 +55,7 @@ classdef Run_results
                 subplot(4,1,4);
                 plot(obj.times, obj.temps);
                 xlim([0 obj.times(end)]);
+                title("Temperatures");
             end
             xlabel("Time (s)");
             set(gcf, 'color', 'w', 'position', [480 108 560 735]);
@@ -148,6 +152,15 @@ classdef Run_results
             end
             
             plot(obj.measurements);
+        end
+
+        function measvstemp(obj)
+            %MEASVSTEMP Fluctuations with temperature only when stationary
+            % i.e. force setting curves are neglected
+
+            inds = find(obj.positions==max(obj.positions));
+            plot(obj.temps(inds), obj.measurements(inds, :));
+
         end
     end
 end

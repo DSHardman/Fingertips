@@ -1,4 +1,6 @@
-runstring = "straight"; % Change this to view different datasets
+runstring = "human"; % Change this to view different datasets
+
+load("Readings/Extracted.mat");
 
 % Plot forces and heatmap response of EIT fingertips
 names = {"A1"; "A2"; "F1"; "F2"; "G1"; "R1"};
