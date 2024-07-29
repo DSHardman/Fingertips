@@ -1,4 +1,4 @@
-runstring = "human"; % Change this to view different datasets
+runstring = "normal"; % Change this to view different datasets
 
 load("Readings/Extracted.mat");
 

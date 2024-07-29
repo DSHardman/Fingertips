@@ -7,6 +7,7 @@ classdef Run_results
         times
         measurements
         temps
+        color
     end
 
     methods
@@ -37,6 +38,13 @@ classdef Run_results
             end
         end
 
+        function outres = voltage2res(obj, resistance)
+            %VOLTAGE2RES Convert potential divider measurements to
+            %resistance
+            % Only need to run this once
+            outres = resistance*(1023./obj.measurements - 1);
+        end
+
         function plotall(obj)
             %PLOTALL with time
             subplot(4,1,1);
@@ -63,9 +71,12 @@ classdef Run_results
 
         function mechplot(obj)
             %MECHPLOT Mechanical response plot
-            plot(obj.positions, obj.forces);
-            xlabel("Z displacement (mm)");
-            ylabel("Force (N)");
+            inds = find(obj.forces>0);
+            plot(obj.positions(inds(1):inds(end))-obj.positions(inds(1)),...
+                obj.forces(inds(1):inds(end)), 'linewidth', 2, 'Color', obj.color,...
+                'LineStyle', '-');
+            % xlabel("Z displacement (mm)");
+            % ylabel("Force (N)");
         end
 
         function measvsforce(obj, n_ranked)
@@ -82,7 +93,51 @@ classdef Run_results
                 plot(obj.forces, obj.measurements);
             end
             xlabel("Force (N)");
-            ylabel("Measurements");
+            ylabel("Reading");
+        end
+
+        function measvsforcefromzero(obj, n_ranked)
+            %MEASVSFORCEFROMZERO Measurements with applied force, with each
+            %channel shown as absolute response from starting point
+
+            % For EIT, can plot only the n_ranked most variable channels
+            if nargin == 2
+                [coeff,~,~,~,~,~] = pca(obj.measurements);
+                [~,ranking] = sort(mean(abs(coeff(:,1)), 2), 'descend');
+                plot(obj.forces,...
+                    abs(obj.measurements(:, ranking(1:n_ranked))-obj.measurements(1, ranking(1:n_ranked))),...
+                    'linewidth', 2, 'color', obj.color);
+                ylim([0 1]);
+            else
+                % Otherwise plot all channels
+                plot(obj.forces, obj.measurements-obj.measurements(1,:), 'linewidth', 2, 'color', obj.color);
+            end
+            xlabel("Force (N)");
+            % ylabel("Reading");
+        end
+
+        function change = returnmaxchange(obj, n_ranked, max_force)
+            %RETURNMAXCHANGE Return average signal change of top ranked channels at max position
+            [coeff,~,~,~,~,~] = pca(obj.measurements);
+            [~,ranking] = sort(mean(abs(coeff(:,1)), 2), 'descend');
+
+            if nargin == 3 && max(obj.forces) > max_force
+                % If a maximum force is defined, only consider ramp up to this
+                valid_inds = 1:find(obj.forces>max_force, 1, "first")-1;
+            else
+                valid_inds = 1:length(obj.positions);
+            end
+
+            fpositions = obj.positions(valid_inds);
+            fmeasurements = obj.measurements(valid_inds, :);
+
+            change = 0;
+            for i = 1:n_ranked
+                inds = find(fpositions == max(fpositions));
+                change = change +...
+                    max(abs(fmeasurements(inds, ranking(i))-fmeasurements(1, ranking(i))));
+            end
+            change = change/n_ranked;
         end
 
         function visualise(obj, ranked, subplotoverride)

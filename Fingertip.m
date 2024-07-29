@@ -7,6 +7,7 @@ classdef Fingertip
         straight
         temp
         human
+        color
     end
 
     methods
@@ -17,6 +18,23 @@ classdef Fingertip
             obj.straight = Run_results("Readings/Straight/"+code+".mat");
             obj.temp = Run_results("Readings/Temp/"+code+".mat");
             obj.human = Run_results("Readings/Human/"+code+".mat");
+        end
+
+        function outobj = propagatecolor(obj)
+            %PROPAGATECOLOR Apply color to class properties
+            obj.normal.color = obj.color;
+            obj.bent.color = obj.color;
+            obj.straight.color = obj.color;
+            try
+                obj.human.color = obj.color;
+            catch
+            end
+            try
+                obj.temp.color = obj.color
+            catch
+            end
+            outobj = obj;
+
         end
 
         function mechplots(obj)

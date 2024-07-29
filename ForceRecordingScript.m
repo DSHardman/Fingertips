@@ -1,6 +1,6 @@
-maximumforce = 3.0; % In N: 6.0 normal, 3.0 bent/straight, 0.2 human
-savestring = "Bent/F2";
-readingtype = "EIT";
+maximumforce = 2.0; % In N: 6.0 normal, 2.0 bent/straight, 0.2 human
+savestring = "Bent/Z1";
+readingtype = "FSR";
 
 % Printer starts manually positioned just above starting point
 
@@ -91,29 +91,29 @@ while force < maximumforce
     n = n + 1;
 end
 
-% Optional: hold still while still recording (for human tests)
-% And accidentally left on for bent repeats
-for i = 1:10
-    pause(0.5);
-    flush(arduino);
-    readline(arduino);
-    arduinodata = str2num(readline(arduino));
-    force = arduinodata(end) % print force in console
-    forces = [forces; force];
-    positions = [positions; n*step];
-    times = [times; toc];
-
-    switch readingtype
-    case "EIT"
-        flush(eitboard);
-        eitdata = str2num(readline(eitboard));
-        measurements = [measurements; eitdata];
-    case "Passive"
-        measurements = NaN;
-    otherwise
-        measurements = [measurements; arduinodata(1:end-1)];
-    end
-end
+% % Optional: hold still while still recording (for human tests)
+% % And accidentally left on for bent repeats
+% for i = 1:10
+%     pause(0.5);
+%     flush(arduino);
+%     readline(arduino);
+%     arduinodata = str2num(readline(arduino));
+%     force = arduinodata(end) % print force in console
+%     forces = [forces; force];
+%     positions = [positions; n*step];
+%     times = [times; toc];
+% 
+%     switch readingtype
+%     case "EIT"
+%         flush(eitboard);
+%         eitdata = str2num(readline(eitboard));
+%         measurements = [measurements; eitdata];
+%     case "Passive"
+%         measurements = NaN;
+%     otherwise
+%         measurements = [measurements; arduinodata(1:end-1)];
+%     end
+% end
 
 % Return to starting position whilst still measuring
 for i = n:-1:0
