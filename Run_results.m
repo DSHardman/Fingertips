@@ -45,8 +45,19 @@ classdef Run_results
             outres = resistance*(1023./obj.measurements - 1);
         end
 
-        function plotall(obj)
+        function plotall(obj, tempchangeonly)
             %PLOTALL with time
+
+            % For temp measurements, don't include force ramps
+            if nargin == 2 && tempchangeonly
+                inds = find(obj.positions == max(obj.positions));
+                obj.times = obj.times(inds) - obj.times(inds(1));
+                obj.positions = obj.positions(inds);
+                obj.temps = obj.temps(inds);
+                obj.forces = obj.forces(inds);
+                obj.measurements = obj.measurements(inds, :);
+            end
+
             subplot(4,1,1);
             plot(obj.times, obj.positions);
             xlim([0 obj.times(end)]);
@@ -136,6 +147,47 @@ classdef Run_results
                 inds = find(fpositions == max(fpositions));
                 change = change +...
                     max(abs(fmeasurements(inds, ranking(i))-fmeasurements(1, ranking(i))));
+            end
+            change = change/n_ranked;
+        end
+
+        
+        function [change, boundaryforces] = returnchangefromtemp(obj, n_ranked)
+            %RETURNMAXCHANGE Return average signal change of top ranked
+            %channels at max position due to temp change.
+            % Also return max force change so this can be compared
+
+            inds = find(obj.positions==max(obj.positions));
+            obj.forces = obj.forces(inds);
+            obj.temps = obj.temps(inds);
+            obj.measurements = obj.measurements(inds, :);
+
+            boundaryforces = [max(obj.forces(1:60)) min(obj.forces(end-20:end))];
+
+
+            [coeff,~,~,~,~,~] = pca(obj.measurements);
+            [~,ranking] = sort(mean(abs(coeff(:,1)), 2), 'descend');
+
+            maxtempind = find(obj.temps==max(obj.temps));
+            
+            subplot(2,1,1);
+            plot(obj.measurements(:, ranking(1:5)));
+            subplot(2,1,2);
+            plot(obj.temps);
+            pause();
+
+            change = 0;
+            for i = 1:n_ranked
+                if obj.measurements(maxtempind(1), ranking(i))>obj.measurements(end, ranking(i))
+                    change = change +...
+                        max(obj.measurements(maxtempind(1):maxtempind(1)+10, ranking(i))) -...
+                        min(obj.measurements(end-10:end, ranking(i)));
+                else
+                    change = change +...
+                        max(obj.measurements(end-10:end, ranking(i)))-...
+                        min(obj.measurements(maxtempind(1):maxtempind(1)+10, ranking(i)));
+                end
+
             end
             change = change/n_ranked;
         end
