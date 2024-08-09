@@ -169,12 +169,6 @@ classdef Run_results
             [~,ranking] = sort(mean(abs(coeff(:,1)), 2), 'descend');
 
             maxtempind = find(obj.temps==max(obj.temps));
-            
-            subplot(2,1,1);
-            plot(obj.measurements(:, ranking(1:5)));
-            subplot(2,1,2);
-            plot(obj.temps);
-            pause();
 
             change = 0;
             for i = 1:n_ranked
@@ -190,6 +184,27 @@ classdef Run_results
 
             end
             change = change/n_ranked;
+        end
+
+
+        function [correlation] = returntempcorrelation(obj)
+            %RETURNTEMPCORRELATION Return average correlation of all signals and
+            %temperature
+
+            inds = find(obj.positions==max(obj.positions));
+            inds = inds(3:end); % Let measurements settle before temp changes
+            obj.forces = obj.forces(inds);
+            obj.temps = obj.temps(inds);
+            obj.measurements = obj.measurements(inds, :);
+            
+            correlation = 0;
+            for i = 1:size(obj.measurements, 2)
+                correlation = correlation + abs(xcorr(normalize(obj.measurements(:, i), "range", [0 1]), normalize(obj.temps), 0));
+            end
+            correlation = correlation/size(obj.measurements, 2);
+            % heatmap(normalize(obj.measurements, "range", [0 1]).', "colormap", gray); grid off
+            % pause();
+            % clf
         end
 
         function visualise(obj, ranked, subplotoverride)

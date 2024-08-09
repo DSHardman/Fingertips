@@ -4,6 +4,7 @@ readingtype = "Ben";
 
 % Printer starts manually positioned just above temperature probe
 % Creality fan is pointed at probe throughout for sufficient cooling
+% Changed from 1 to 3 temperature spikes to make correlations more obvious
 
 % Connect to peripherals
 eitboard = serialport("COM6", 9600);
@@ -97,64 +98,66 @@ while force < maximumforce
     n = n + 1;
 end
 
-printer.writeline('M104 S35'); % Set target temp to 35 for 8 seconds
-fprintf("Heating...\n");
-t0 = toc;
-while toc - t0 < 8
-    pause(0.5);
-    flush(arduino);
-    readline(arduino);
-    arduinodata = str2num(readline(arduino));
-
-    force = arduinodata(end);
-    forces = [forces; force];
-    temp = gettemperature(printer) % Print temperature in console
-    temps = [temps; temp];
-    positions = [positions; n*step];
-    times = [times; toc];
-    toc - t0 % Print time in console
-
-    % Update measurements
-    switch readingtype
-    case "EIT"
-        flush(eitboard);
-        eitdata = str2num(readline(eitboard));
-        measurements = [measurements; eitdata];
-    case "Passive"
-        measurements = NaN;
-    otherwise
-        measurements = [measurements; arduinodata(1:end-1)];
+for i = 1:3 % 3x temperature spikes
+    printer.writeline('M104 S35'); % Set target temp to 35 for 8 seconds
+    fprintf("Heating...\n");
+    t0 = toc;
+    while toc - t0 < 8
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+    
+        force = arduinodata(end);
+        forces = [forces; force];
+        temp = gettemperature(printer) % Print temperature in console
+        temps = [temps; temp];
+        positions = [positions; n*step];
+        times = [times; toc];
+        toc - t0 % Print time in console
+    
+        % Update measurements
+        switch readingtype
+        case "EIT"
+            flush(eitboard);
+            eitdata = str2num(readline(eitboard));
+            measurements = [measurements; eitdata];
+        case "Passive"
+            measurements = NaN;
+        otherwise
+            measurements = [measurements; arduinodata(1:end-1)];
+        end
     end
-end
-
-printer.writeline('M104 S0'); % Cooldown
-fprintf("Cooling...\n")
-
-% Hold in place for 5 minutes
-t0 = toc;
-while toc -t0 < 300
-    pause(0.5);
-    flush(arduino);
-    readline(arduino);
-    arduinodata = str2num(readline(arduino));
-    force = arduinodata(end);
-    forces = [forces; force];
-    temp = gettemperature(printer) % Print temperature in console
-    temps = [temps; temp];
-    positions = [positions; n*step];
-    times = [times; toc];
-    toc - t0 % Print time in console
-
-    % Update measurements
-    switch readingtype
-    case "EIT"
-        flush(eitboard);
-        eitdata = str2num(readline(eitboard));
-        measurements = [measurements; eitdata];
-    case "Passive"
-        measurements = NaN;
-    otherwise
-        measurements = [measurements; arduinodata(1:end-1)];
+    
+    printer.writeline('M104 S0'); % Cooldown
+    fprintf("Cooling...\n")
+    
+    % Hold in place for 5 minutes
+    t0 = toc;
+    while toc -t0 < 300
+        pause(0.5);
+        flush(arduino);
+        readline(arduino);
+        arduinodata = str2num(readline(arduino));
+        force = arduinodata(end);
+        forces = [forces; force];
+        temp = gettemperature(printer) % Print temperature in console
+        temps = [temps; temp];
+        positions = [positions; n*step];
+        times = [times; toc];
+        toc - t0 % Print time in console
+    
+        % Update measurements
+        switch readingtype
+        case "EIT"
+            flush(eitboard);
+            eitdata = str2num(readline(eitboard));
+            measurements = [measurements; eitdata];
+        case "Passive"
+            measurements = NaN;
+        otherwise
+            measurements = [measurements; arduinodata(1:end-1)];
+        end
     end
 end
 

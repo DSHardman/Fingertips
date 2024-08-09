@@ -1,4 +1,4 @@
-runstring = "normal"; % Change this to view different datasets
+runstring = "straight"; % Change this to view different datasets
 load("Readings/Extracted.mat");
 
 subplot(1,2,1);
@@ -43,3 +43,5 @@ set(gca, 'linewidth', 2, 'fontsize', 15);
 % ylim([0 0.8]);
 legend(names, 'orientation', 'horizontal', 'location', 'n');
 legend boxoff
+
+set(gcf, 'color', 'w', 'Position', [45 355 1436 420]);

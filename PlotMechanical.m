@@ -1,6 +1,6 @@
 names = {"A1"; "A2"; "B1"; "F1"; "F2"; "G1"; "N1"; "P1"; "P2"; "R1"; "T1"; "T2"; "Z1"};
 
-% mylinestyles = ["-"; "--"; "-o"];
+mylinestyles = ["-"; "--"; "-o"];
 % mycolors = 1/255*[166,206,227;...
 % 31,120,180;...
 % 178,223,138;...
@@ -26,12 +26,12 @@ for n = 1:length(names)
     subplot(1,3,2);
     eval(names{n}+".bent.mechplot()");
     set(gca, 'LineStyleOrder', mylinestyles);
-    set(gca, 'ColorOrder', mycolors);
+    % set(gca, 'ColorOrder', mycolors);
     hold on
     subplot(1,3,3);
     eval(names{n}+".straight.mechplot()");
     set(gca, 'LineStyleOrder', mylinestyles);
-    set(gca, 'ColorOrder', mycolors);
+    % set(gca, 'ColorOrder', mycolors);
     hold on
 end
 
@@ -40,11 +40,14 @@ end
 for i = 1:3
     subplot(1,3,i);
     % legend(names, 'orientation', 'horizontal', 'location', 'nw');
-    set(gca, 'linewidth', 2, 'fontsize', 15);
+    set(gca, 'linewidth', 2, 'fontsize', 15, 'color', 'none');
     box off
     % title(titles{i});
     % legend boxoff
 end
+
+subplot(1,3,2);
+legend(names, 'orientation', 'horizontal', 'location', 'nw');
 
 subplot(1,3,1); xlim([0 12]); ylim([0 9]); ylabel("Force (N)");
 subplot(1,3,2); xlim([0 12]); ylim([0 3]); xlabel("Displacement (mm)");
