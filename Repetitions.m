@@ -1,6 +1,10 @@
-savestring = "Localize/A2_2";
-N = 1000;
+savestring = "Repetitions/A2_B";
+N = 5;
 pressdepth = 5;
+
+% location = [0 0]; % Position A
+location = [5 5]; % Position B
+% location = [-10 0]; % Position C
 
 % Printer starts manually positioned just above starting point
 
@@ -37,18 +41,12 @@ for i = 1:N
     i
     printer.writeline("G0 Z25");
 
-    % Random location within 20mm circle
-    while 1
-        x = 20*rand()-10;
-        y = 20*rand()-10;
-        if sqrt(x^2+y^2) <= 10
-            break
-        end
-    end
+    x = location(1);
+    y = location(2);
 
     % Move to starting position
     printer.writeline("G0 X"+string(x)+" Y"+string(y));
-    locations(i, :) = [x y];
+    locations(i, :) = location;
 
     pause(2);
 
