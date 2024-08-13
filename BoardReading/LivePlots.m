@@ -1,7 +1,7 @@
 % For debugging: see EIT board data in real time
 
 clear device
-device = serialport("COM6",9600);
+device = serialport("COM5",9600);
 device.Timeout = 25;
 
 device.write("y", "string");
