@@ -1,14 +1,18 @@
 maximumforce = 2.0; % In N
-savestring = "Temp/B1";
-readingtype = "Ben";
+savestring = "Temp/H1";
+readingtype = "Hall";
 
 % Printer starts manually positioned just above temperature probe
 % Creality fan is pointed at probe throughout for sufficient cooling
 % Changed from 1 to 3 temperature spikes to make correlations more obvious
 
 % Connect to peripherals
-eitboard = serialport("COM6", 9600);
-eitboard.Timeout = 25;
+if readingtype == "Cap"
+    eitboard = serialport("COM9", 115200);
+else
+    eitboard = serialport("COM6", 9600);
+    eitboard.Timeout = 25;
+end
 pause(1);
 printer = serialport("COM12", 250000);
 printer.configureTerminator(13);
@@ -45,10 +49,18 @@ switch readingtype
         eitboard.write("n", "string");
         pause(2);
         arduino.write("f", "string");
+    case "Hall"
+        eitboard.write("n", "string");
+        pause(2);
+        arduino.write("h", "string");
     case "Ben"
         eitboard.write("n", "string");
         pause(2);
         arduino.write("n", "string");
+    case "Cap"
+        pause(2);
+        arduino.write("e", "string");
+        pause(2);
     case "Passive"
         eitboard.write("n", "string");
         pause(2);
@@ -80,6 +92,10 @@ while force < maximumforce
         flush(eitboard);
         eitdata = str2num(readline(eitboard));
         measurements = [measurements; eitdata];
+    case "Cap"
+        flush(eitboard);
+        eitdata = str2num(readline(eitboard));
+        measurements = [measurements; eitdata(1)];
     case "Passive"
         measurements = NaN;
     otherwise
@@ -122,6 +138,10 @@ for i = 1:3 % 3x temperature spikes
             flush(eitboard);
             eitdata = str2num(readline(eitboard));
             measurements = [measurements; eitdata];
+        case "Cap"
+            flush(eitboard);
+            eitdata = str2num(readline(eitboard));
+            measurements = [measurements; eitdata(1)];
         case "Passive"
             measurements = NaN;
         otherwise
@@ -153,6 +173,10 @@ for i = 1:3 % 3x temperature spikes
             flush(eitboard);
             eitdata = str2num(readline(eitboard));
             measurements = [measurements; eitdata];
+        case "Cap"
+            flush(eitboard);
+            eitdata = str2num(readline(eitboard));
+            measurements = [measurements; eitdata(1)];
         case "Passive"
             measurements = NaN;
         otherwise
@@ -180,6 +204,10 @@ for i = n:-1:0
     case "EIT"
         eitdata = str2num(readline(eitboard));
         measurements = [measurements; eitdata];
+    case "Cap"
+        flush(eitboard);
+        eitdata = str2num(readline(eitboard));
+        measurements = [measurements; eitdata(1)];
     case "Passive"
         measurements = NaN;
     otherwise

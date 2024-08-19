@@ -13,8 +13,9 @@ end
 
 plotthis = str2num(data);
 
-n = 120;
+n = 300;
 for i = 1:n
+    i
     data = readline(device);
     if ~isempty(data)
         data = str2num(data);
@@ -22,15 +23,15 @@ for i = 1:n
         clf
         % Assumes that ranking variable already exists from a previous script...
         % plot(plotthis(:, ranking(1:200)), 'linewidth', 2);
-        plot(plotthis, 'linewidth', 2);
-
-        set(gca, 'color', 'w', 'linewidth', 2, 'fontsize', 15);
-        set(gcf, 'color', 'w');
-        box off
-        ylabel("Magnitude");
-        % ylim([0 1.2]);
-        xlim([0 n]);
-        drawnow();
+        % plot(plotthis, 'linewidth', 2);
+        % 
+        % set(gca, 'color', 'w', 'linewidth', 2, 'fontsize', 15);
+        % set(gcf, 'color', 'w');
+        % box off
+        % ylabel("Magnitude");
+        % % ylim([0 1.2]);
+        % xlim([0 n]);
+        % drawnow();
     end
 end
 
