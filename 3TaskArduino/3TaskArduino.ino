@@ -9,15 +9,15 @@
 #define TMAG_SDA 19
 #define TMAG_SCL 18
 
-TMAG5273 tmag5273(&Wire);
+// TMAG5273 tmag5273(&Wire);
 
 HX711 scale;
 
 float calibration_factor = 211.5;
 float current_reading;
 
-char inByte = 'h';
-char readmode = 'h';
+char inByte = 'e';
+char readmode = 'e';
 
 int toolchangeA = 6;
 int toolchangeB = 7;
@@ -51,17 +51,17 @@ void setup() {
   pinMode(A4, INPUT);
   pinMode(A5, INPUT);
 
-  Wire.begin();
-  tmag5273.modifyI2CAddress(0x35);
+  // Wire.begin();
+  // tmag5273.modifyI2CAddress(0x35);
   
-  tmag5273.configOperatingMode(TMAG5273_OPERATING_MODE_MEASURE);
-  tmag5273.configReadMode(TMAG5273_READ_MODE_STANDARD);
-  tmag5273.configMagRange(TMAG5273_MAG_RANGE_40MT);
-  tmag5273.configLplnMode(TMAG5273_LOW_NOISE);
-  tmag5273.configMagTempcoMode(TMAG5273_MAG_TEMPCO_NdBFe);
-  tmag5273.configConvAvgMode(TMAG5273_CONV_AVG_1X);
-  tmag5273.configTempChEnabled(true);
-  tmag5273.init();
+  // tmag5273.configOperatingMode(TMAG5273_OPERATING_MODE_MEASURE);
+  // tmag5273.configReadMode(TMAG5273_READ_MODE_STANDARD);
+  // tmag5273.configMagRange(TMAG5273_MAG_RANGE_40MT);
+  // tmag5273.configLplnMode(TMAG5273_LOW_NOISE);
+  // tmag5273.configMagTempcoMode(TMAG5273_MAG_TEMPCO_NdBFe);
+  // tmag5273.configConvAvgMode(TMAG5273_CONV_AVG_1X);
+  // tmag5273.configTempChEnabled(true);
+  // tmag5273.init();
 
   // digitalWrite(A0, HIGH);
   
@@ -188,7 +188,7 @@ void loop() {
     Serial.print(", ");
     delay(10);
   } else if (readmode=='h') { // I2C communication with hall effect sensor
-    res = tmag5273.readMagneticField(&Bx, &By, &Bz, &T);
+    // res = tmag5273.readMagneticField(&Bx, &By, &Bz, &T);
     Serial.print(String(Bx));
     Serial.print(", ");
     Serial.print(String(By));
