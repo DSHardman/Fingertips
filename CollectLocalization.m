@@ -1,4 +1,4 @@
-savestring = "Localize/A2_2";
+savestring = "Localize/G1_1";
 N = 1000;
 pressdepth = 5;
 
@@ -10,22 +10,22 @@ eitboard.Timeout = 25;
 pause(1);
 printer = serialport("COM12", 250000);
 printer.configureTerminator(13);
-pause(1);
-arduino = serialport("COM10", 9600);
-pause(1);
+pause(3);
+% arduino = serialport("COM10", 9600);
+% pause(1);
 printer.writeline('G92 Z20');
 printer.writeline('M211 S0');
 
 % Variables to save
-forces = zeros([N, 1]);
+% forces = zeros([N, 1]);
 locations = zeros([N, 2]);
 befores = zeros([N, 1680]);
 durings = zeros([N, 1680]);
 
 % Configure boards to EIT measurements
 pause(2);
-arduino.write("e", "string");
-pause(2);
+% arduino.write("e", "string");
+% pause(2);
 eitboard.write("y", "string");
 pause(3);
 
@@ -64,17 +64,17 @@ for i = 1:N
     pause(2);
 
     % Record pressing force
-    flush(arduino);
-    readline(arduino);
-    arduinodata = str2num(readline(arduino));
-    forces(i) = arduinodata(end);
+    % flush(arduino);
+    % readline(arduino);
+    % arduinodata = str2num(readline(arduino));
+    % forces(i) = arduinodata(end);
 
     % Record response after
     flush(eitboard);
     readline(eitboard);
     durings(i, :) = str2num(readline(eitboard));
 
-    save("Readings/"+savestring+".mat", "befores", "durings", "forces", "locations");
+    save("Readings/"+savestring+".mat", "befores", "durings", "locations");
 end
 
 % Move to starting position and disconnect motors
@@ -84,4 +84,4 @@ printer.writeline("G0 Z20");
 printer.writeline("M81");
 
 % Disconnect peripherals
-clear eitboard printer arduino
+clear eitboard printer
