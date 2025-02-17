@@ -2,6 +2,8 @@ runstring = "normal"; % Change this to view different datasets
 
 load("Readings/Extracted.mat");
 
+figure();
+
 % Plot forces and heatmap response of EIT fingertips
 names = {"A1"; "A2"; "F1"; "F2"; "G1"; "R1"};
 for n = 1:length(names)
@@ -20,3 +22,15 @@ end
 
 set(gcf, 'color', 'w', 'position', [38 283 1490 496]);
 sgtitle(runstring);
+
+%% plot those featuring in figure
+
+% Plot forces and heatmap response of EIT fingertips
+names = {"A1"; "A2"; "G1"; "R1"};
+for n = 1:length(names)
+    eval(names{n}+"."+runstring+".visualise(1, [2, 4, "+string(n)+", "+string(n+4)+"]);");
+    subplot(2,4,n);
+    title(names{n});
+end
+
+set(gcf, 'color', 'w', 'position', [39         307        1483         472]);

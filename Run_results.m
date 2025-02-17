@@ -97,14 +97,23 @@ classdef Run_results
             if nargin == 2
                 [coeff,~,~,~,~,~] = pca(obj.measurements);
                 [~,ranking] = sort(mean(abs(coeff(:,1)), 2), 'descend');
-                plot(obj.forces, obj.measurements(:, ranking(1:n_ranked)));
+                plot(obj.forces, obj.measurements(:, ranking(1:n_ranked)), 'linewidth', 2,...
+                    'color', [obj.color 0.5]);
                 ylim([0 1]);
+                box off
+                set(gca, 'Fontsize', 15);
+                set(gca, 'linewidth', 2);
+
             else
                 % Otherwise plot all channels
-                plot(obj.forces, obj.measurements);
+                plot(obj.forces, (5/1023)*(obj.measurements-obj.measurements(1,:)), 'color', obj.color, 'linewidth', 2);
+                box off
+                set(gca, 'Fontsize', 15);
+                set(gca, 'linewidth', 2);
+
             end
-            xlabel("Force (N)");
-            ylabel("Reading");
+            % xlabel("Force (N)");
+            % ylabel("Reading");
         end
 
         function measvsforcefromzero(obj, n_ranked)
@@ -127,12 +136,10 @@ classdef Run_results
             % ylabel("Reading");
         end
 
-        function change = returnmaxchange(obj, n_ranked, max_force)
-            %RETURNMAXCHANGE Return average signal change of top ranked channels at max position
-            [coeff,~,~,~,~,~] = pca(obj.measurements);
-            [~,ranking] = sort(mean(abs(coeff(:,1)), 2), 'descend');
+        function change = returnmaxchange(obj, max_force)
+            %RETURNMAXCHANGE Return signal change of channels at max position
 
-            if nargin == 3 && max(obj.forces) > max_force
+            if nargin == 2 && max(obj.forces) > max_force
                 % If a maximum force is defined, only consider ramp up to this
                 valid_inds = 1:find(obj.forces>max_force, 1, "first")-1;
             else
@@ -142,13 +149,11 @@ classdef Run_results
             fpositions = obj.positions(valid_inds);
             fmeasurements = obj.measurements(valid_inds, :);
 
-            change = 0;
-            for i = 1:n_ranked
+            change = zeros([size(obj.measurements, 2), 1]);
+            for i = 1:size(obj.measurements, 2)
                 inds = find(fpositions == max(fpositions));
-                change = change +...
-                    max(abs(fmeasurements(inds, ranking(i))-fmeasurements(1, ranking(i))));
+                change(i) = max(abs(fmeasurements(inds, i)-fmeasurements(1, i)));
             end
-            change = change/n_ranked;
         end
 
         
@@ -188,8 +193,7 @@ classdef Run_results
 
 
         function [correlation] = returntempcorrelation(obj)
-            %RETURNTEMPCORRELATION Return average correlation of all signals and
-            %temperature
+            %RETURNTEMPCORRELATION Return correlation of all signals and temperature
 
             inds = find(obj.positions==max(obj.positions));
             inds = inds(3:end); % Let measurements settle before temp changes
@@ -197,14 +201,17 @@ classdef Run_results
             obj.temps = obj.temps(inds);
             obj.measurements = obj.measurements(inds, :);
             
-            correlation = 0;
+            % correlation = 0;
+            % for i = 1:size(obj.measurements, 2)
+            %     correlation = correlation + abs(xcorr(normalize(obj.measurements(:, i), "range", [0 1]), normalize(obj.temps), 0));
+            % end
+            % correlation = correlation/size(obj.measurements, 2);
+
+            correlation = zeros([size(obj.measurements, 2), 1]);
             for i = 1:size(obj.measurements, 2)
-                correlation = correlation + abs(xcorr(normalize(obj.measurements(:, i), "range", [0 1]), normalize(obj.temps), 0));
+                correlation(i) = abs(xcorr(normalize(obj.measurements(:, i)), normalize(obj.temps), 0));
             end
-            correlation = correlation/size(obj.measurements, 2);
-            % heatmap(normalize(obj.measurements, "range", [0 1]).', "colormap", gray); grid off
-            % pause();
-            % clf
+
         end
 
         function visualise(obj, ranked, subplotoverride)
@@ -228,8 +235,10 @@ classdef Run_results
             end
 
             % Plot forces at top
-            plot(obj.forces);
-            xlim([0 length(obj.forces)]);
+            plot(obj.times, obj.forces, 'LineWidth', 2, 'color', obj.color);
+            xlim([0 max(obj.times)]);
+            set(gca, 'linewidth', 2, 'fontsize', 15);
+            box off
 
             % Set location 2
             if subplotoverride
@@ -250,6 +259,8 @@ classdef Run_results
             Ax = gca;
             Ax.XDisplayLabels = nan(size(Ax.XDisplayData));
             Ax.YDisplayLabels = nan(size(Ax.YDisplayData));
+
+            colorbar off
         end
 
         function channels(obj, subplotoverride)

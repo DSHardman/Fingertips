@@ -1,4 +1,4 @@
-load("Readings/Localize/G1_1.mat");
+load("Readings/Localize/A2.mat");
 responses = durings - befores;
 N = 800; % How many channels to input?
 
@@ -24,8 +24,8 @@ for i = 1:10
     scatter(-predictions(i, 1), -predictions(i, 2), 80, 'r', 'filled');
     set(gca, 'fontsize', 18);
     title(string(i));
-    xlim([-11 11]);
-    ylim([-11 11]);
+    % xlim([-11 11]);
+    % ylim([-11 11]);
     axis square
     axis off
 end
@@ -33,6 +33,7 @@ end
 set(gcf, 'color', 'w', 'position', [122 250 1199 520]);
 sgtitle('');
 
+return
 %%
 figure();
 for i = 1:10
@@ -46,6 +47,6 @@ for i = 1:10
     set(gcf, 'color', 'none');
     axis square
     axis off
-    exportgraphics(gcf, "Media/EditedVideos/Prediction" + string(i) + ".png");
+    % exportgraphics(gcf, "Media/EditedVideos/Prediction" + string(i) + ".png");
     clf
 end
