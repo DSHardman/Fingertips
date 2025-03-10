@@ -4,7 +4,7 @@ num_channels = 5;
 
 % subplot(1,3,[1 2]);
 % names = {"A1"; "A2"; "F1"; "F2"; "R1"; "B1"; "N1"; "Z1"};
-names = {"Q1"; "R1"; "Z1"; "A2"; "F2"; "A1"; "F1"; "N1"; "B1"};
+names = {"Q1"; "H1"; "R1"; "Z1"; "A2"; "F2"; "A1"; "F1"; "N1"; "B1"};
 withtemp = zeros([1, length(names)]);
 colors = zeros([length(names), 3]);
 

@@ -23,33 +23,40 @@ set(gcf, 'color', 'w', 'position', [56         229        1452         536]);
 figure();
 
 % Plot response vs force of FSR & pneumatic fingertips
-names = {"B1"; "N1"; "Z1"; "Q1"};
+names = {"B1"; "N1"; "Z1"; "H1"; "Q1"};
 for n = 1:length(names)
-    subplot(3,4,n);
+    subplot(3,5,n);
     eval(names{n}+"."+runstring+".measvsforce();");
     title(names{n});
 
-    subplot(3,4,n+4);
+    subplot(3,5,n+5);
     eval(names{n}+"."+"bent"+".measvsforce();");
 
-    subplot(3,4,n+8);
+    subplot(3,5,n+10);
     eval(names{n}+"."+"straight"+".measvsforce();");
 end
 
 for i = 1:3
-    subplot(3,4,i);
+    subplot(3,5,i);
     ylim([-0.1 1.4]);
-    subplot(3,4,i+4);
+    subplot(3,5,i+5);
     ylim([-0.1 1.4]);
-    subplot(3,4,i+8);
+    subplot(3,5,i+10);
     ylim([-0.1 1.4]);
 end
 
-subplot(3,4,4);
+subplot(3,5,4);
+ylim([-10 10]);
+subplot(3,5,9);
+ylim([-10 10]);
+subplot(3,5,14);
+ylim([-10 10]);
+
+subplot(3,5,5);
 ylim([-10e-3 10e-3]);
-subplot(3,4,8);
+subplot(3,5,10);
 ylim([-10e-3 10e-3]);
-subplot(3,4,12);
+subplot(3,5,15);
 ylim([-10e-3 10e-3]);
 
 set(gcf, 'color', 'w', 'position', [500   106   808   536]);
