@@ -1,7 +1,7 @@
 % For debugging: see EIT board data in real time
 
 clear device
-device = serialport("COM10",115200);
+device = serialport("COM21",115200);
 device.Timeout = 25;
 
 device.write("y", "string");
@@ -15,7 +15,7 @@ plotthis = str2num(data);
 
 baseline = plotthis;
 
-n = 30;
+n = 10;
 for i = 1:n
     i
     data = readline(device);
@@ -24,7 +24,7 @@ for i = 1:n
         plotthis = [plotthis; data];
         % clf
         plot(data);
-        ylim([0 0.5]);
+        ylim([0 1.3]);
         % subplot(2,1,2);
         % plot(data(2:2:end));
         % Assumes that ranking variable already exists from a previous script...

@@ -1,6 +1,6 @@
-maximumforce = 0.2; % In N: 6.0 normal, 2.0 bent/straight, 0.2 human
-savestring = "Human/H1";
-readingtype = "Hall";
+maximumforce = 6.0; % In N: 6.0 normal, 2.0 bent/straight, 0.2 human
+savestring = "Normal/GD";
+readingtype = "EIT";
 
 % Printer starts manually positioned just above starting point
 
@@ -8,18 +8,20 @@ readingtype = "Hall";
 if readingtype == "Cap"
     eitboard = serialport("COM9", 115200);
 else
-    eitboard = serialport("COM6", 9600);
+    eitboard = serialport("COM21", 9600);
     eitboard.Timeout = 25;
 end
 pause(1);
-printer = serialport("COM12", 250000);
+printer = serialport("COM27", 115200);
 printer.configureTerminator(13);
-pause(1);
-arduino = serialport("COM10", 9600);
+pause(2);
+arduino = serialport("COM11", 9600);
 pause(1);
 
 printer.writeline('G92 Z10');
+pause(2);
 printer.writeline('M211 S0');
+pause(2);
 
 % Variables to save
 force = 0;
@@ -47,7 +49,7 @@ switch readingtype
         pause(2);
         arduino.write("f", "string");
     case "Hall"
-        eitboard.write("n", "string");
+        % eitboard.write("n", "string");
         pause(2);
         arduino.write("h", "string");
     case "Ben"
@@ -71,7 +73,7 @@ tic
 % Press down until maximum force is reached
 while force < maximumforce
     printer.writeline("G0 Z"+string(10-n*step));
-    pause(0.5);
+    pause(1);
     flush(arduino);
     readline(arduino);
     arduinodata = str2num(readline(arduino));
@@ -108,33 +110,33 @@ while force < maximumforce
     n = n + 1;
 end
 
-% Optional: hold still while still recording (for human tests)
-% And accidentally left on for some bent repeats
-for i = 1:10
-    pause(0.5);
-    flush(arduino);
-    readline(arduino);
-    arduinodata = str2num(readline(arduino));
-    force = arduinodata(end) % print force in console
-    forces = [forces; force];
-    positions = [positions; n*step];
-    times = [times; toc];
-
-    switch readingtype
-    case "EIT"
-        flush(eitboard);
-        eitdata = str2num(readline(eitboard));
-        measurements = [measurements; eitdata];
-    case "Cap"
-        flush(eitboard);
-        eitdata = str2num(readline(eitboard));
-        measurements = [measurements; eitdata(1)];
-    case "Passive"
-        measurements = NaN;
-    otherwise
-        measurements = [measurements; arduinodata(1:end-1)];
-    end
-end
+% % Optional: hold still while still recording (for human tests)
+% % And accidentally left on for some bent repeats
+% for i = 1:10
+%     pause(0.5);
+%     flush(arduino);
+%     readline(arduino);
+%     arduinodata = str2num(readline(arduino));
+%     force = arduinodata(end) % print force in console
+%     forces = [forces; force];
+%     positions = [positions; n*step];
+%     times = [times; toc];
+% 
+%     switch readingtype
+%     case "EIT"
+%         flush(eitboard);
+%         eitdata = str2num(readline(eitboard));
+%         measurements = [measurements; eitdata];
+%     case "Cap"
+%         flush(eitboard);
+%         eitdata = str2num(readline(eitboard));
+%         measurements = [measurements; eitdata(1)];
+%     case "Passive"
+%         measurements = NaN;
+%     otherwise
+%         measurements = [measurements; arduinodata(1:end-1)];
+%     end
+% end
 
 % Return to starting position whilst still measuring
 for i = n:-1:0

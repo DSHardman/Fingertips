@@ -80,11 +80,15 @@ classdef Run_results
             set(gcf, 'color', 'w', 'position', [480 108 560 735]);
         end
 
-        function mechplot(obj)
+        function mechplot(obj, col, width)
             %MECHPLOT Mechanical response plot
+            if nargin == 1
+                col = obj.color;
+                width = 2;
+            end
             inds = find(obj.forces>0);
             plot(obj.positions(inds(1):inds(end))-obj.positions(inds(1)),...
-                obj.forces(inds(1):inds(end)), 'linewidth', 2, 'Color', obj.color,...
+                obj.forces(inds(1):inds(end)), 'linewidth', width, 'Color', col,...
                 'LineStyle', '-');
             % xlabel("Z displacement (mm)");
             % ylabel("Force (N)");

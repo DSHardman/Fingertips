@@ -1,4 +1,5 @@
 load("Readings/Localize/A2.mat");
+% load("Readings/Localize/G1_1.mat");
 responses = durings - befores;
 % N = 500; % How many channels to input? 500 seems best
 
@@ -17,7 +18,8 @@ for i = 1:100
 end
 
 %% Part 2: plot
-load("LocalizationErrors.mat");
+% load("LocalizationErrors.mat");
+load("LocalizationErrorsGel.mat");
 
 avg_data = mean(testerrors,2,'omitnan').';
 std_data = std(testerrors,0,2,'omitnan').';
